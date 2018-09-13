@@ -1,11 +1,15 @@
 package facade;
 
+import entity.CMOrder;
 import entity.Customer;
 import entity.Employee;
 import entity.Office;
+import java.util.List;
+import java.util.stream.Stream;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
+import javax.persistence.Query;
+import javax.persistence.TypedQuery;
 
 public class Facade
 {
@@ -95,28 +99,79 @@ public class Facade
         }
     }
 
-    public static void main(String[] args)
+    public long getEmployeeCount()
     {
-        
-        Facade facade = new Facade(Persistence.createEntityManagerFactory("pu"));
+        EntityManager em = getEntityManager();
 
-        //Create
-        Employee c1 = new Employee(0, "Hansen", "Per", "x101", "test@mail.com", "Boss");
-        System.out.println("Create Employee: " + facade.createEmployee(c1));
+        Query q = em.createQuery("SELECT COUNT(c) FROM Employee c");
+        long result = (long) q.getSingleResult();
+        System.out.println("Number of employees: " + result);
+        return result;
 
-        //Get
-        System.out.println("Find customer: " + facade.findCustomer(103));
-        
-        
-        //Update
-        Customer c2 = new Customer(0, "What", "Svensson", "Lars", "112", "Lyngby bag papkassen", "Lyngby", "Denmark");
-        c2.setCustomerNumber(103);
-        System.out.println("Update Customer: " + facade.updateCustomer(c2));
-
-        //Delete
-        Customer c3 = new Customer();
-        c3.setCustomerNumber(112);
-        System.out.println("Delete Customer: " + facade.deleteCustomer(c3));
     }
 
+    public List<Employee> getAllEmployees()
+    {
+        EntityManager em = getEntityManager();
+
+        TypedQuery<Employee> qt = em.createNamedQuery("Employee.findAll", Employee.class);
+        List<Employee> employeeList = qt.getResultList();
+        System.out.println("List of Employees: \n" + employeeList);
+        return employeeList;
+
+    }
+
+    public void getCustomerInCity(String city)
+    {
+        EntityManager em = getEntityManager();
+
+        TypedQuery<Customer> q = em.createNamedQuery("Customer.findByCity", Customer.class);
+        q.setParameter("city", city);
+        List<Customer> customerList = q.getResultList();
+        System.out.println("List of Customers in city: " + city);
+        System.out.println(customerList);
+
+    }
+
+    public void getEmployeeMaxCustomers() // DOESNT WORK
+    {
+        EntityManager em = getEntityManager();
+
+        Query q = em.createQuery("select c from Employee c where c.employeeNumber=(SELECT MAX(c.employee.employeeNumber) from Customer c)");
+
+        System.out.println(q.getResultList());
+        Employee e = (Employee) q.getSingleResult();
+        System.out.println("Employee with max customers: " + e.toString() + " ");
+    }
+
+    public void getOrdersOnHold()
+    {
+        EntityManager em = getEntityManager();
+
+        TypedQuery<CMOrder> q = em.createNamedQuery("CMOrder.findByStatus", CMOrder.class);
+        q.setParameter("status", "On Hold");
+        List<CMOrder> orderList = q.getResultList();
+        System.out.println("List of orders on hold: ");
+        System.out.println(orderList);
+
+    }
+
+    public void getOrdersOnHold(int customerNumber)
+    {
+        EntityManager em = getEntityManager();
+
+        Query q = em.createQuery("select c from CMOrder c where c.status ='On Hold' AND c.customer.customerNumber = :customer").setParameter("customer", customerNumber);
+        System.out.println("Orders on hold for " + customerNumber + ": \n" + q.getResultList());
+    }
+
+    public List<String> getCustomerNamesSorted() // HOW DO I RETURN A STRING LIST???????
+    {
+        EntityManager em = getEntityManager();
+
+        Query q = em.createQuery("SELECT DISTINCT c.customerName from Customer c ORDER BY c.customerName");
+        List<Customer> list = q.getResultList();
+        System.out.println("Names sorted: " + list);
+        
+        return null;
+    }
 }

@@ -220,7 +220,7 @@ public class Employee implements Serializable
     @Override
     public String toString()
     {
-        return "entity.Employee[ employeeNumber=" + employeeNumber + " ]";
+        return "Employee Number:" + employeeNumber + " " + firstName + "\n";
     }
 
 }

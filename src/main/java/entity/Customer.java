@@ -285,7 +285,7 @@ public class Customer implements Serializable
     @Override
     public String toString()
     {
-        return "entity.Customer[ customerNumber=" + customerNumber + " ]";
+        return "Customer Number:" + customerNumber + " " + customerName + "\n";
     }
     
 }

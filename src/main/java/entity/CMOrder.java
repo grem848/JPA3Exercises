@@ -193,7 +193,7 @@ public class CMOrder implements Serializable
     @Override
     public String toString()
     {
-        return "entity.CMOrder[ orderNumber=" + orderNumber + " ]";
+        return "Order Number: " + orderNumber + " " + status;
     }
     
 }
